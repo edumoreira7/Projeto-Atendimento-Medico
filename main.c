@@ -139,17 +139,84 @@ int remover(Lista *lista, Elista *remover){
 
 //----------------------------------------------
 
-typedef struct {
-	int head;
-	int tail;
-	int qtd;
-} Fila;
+
 //FILA | QUEUE
 
-typedef struct EFila{
+typedef struct Efila{
 	Registro *dados;
-    struct EFila *proximo;
-} EFila;
+    struct Efila *proximo;
+} Efila;
+
+typedef struct {
+	Efila *head;
+	Efila *tail;
+	int qtd;
+} Fila;
+
+Efila *criarCelula(Registro *dados){
+    Efila *nova = malloc(sizeof(Efila));
+    nova->proximo = NULL;
+    nova->dados = dados;
+    return nova;
+}
+
+Fila *criarFila(){
+    Fila *fila = malloc(sizeof(fila));
+    fila->head = NULL;
+    fila->tail = NULL;
+    fila->qtd = 0;
+
+    return fila;
+}
+
+void enfileirar(Fila *fila, Registro *dados){
+    Efila *nova = criarCelula(dados);
+    
+    if(fila->qtd == 0){
+        fila->head = nova;
+    }else{
+        fila->tail->proximo = nova;
+    }
+    fila->tail = nova;
+    fila->qtd++;
+} 
+
+void desenfileirar(Fila *fila){
+    if(fila->qtd == 0){
+        return -1;
+    }
+
+    Efila *liberar = fila->head;
+    //Registro *dados = fila->head->dados;
+
+    if(fila->qtd == 1){
+        fila->head = NULL;
+        fila->tail = NULL;
+    }else{
+        fila->head = fila->head->proximo;
+    }
+    fila->qtd--;
+    free(liberar);
+    //return valor;
+}
+
+void mostrarFila(Fila *fila){
+    printf("HEAD - > ");
+    Efila *atual = fila->head;
+    while(atual != NULL){
+        printf("------------------------------------\n");
+        printf("Nome: %s\n", atual->dados->nome);
+        printf("Entrada: %d/", atual->dados->entrada->dia);
+        printf("%d/", atual->dados->entrada->mes);
+        printf("%d\n", atual->dados->entrada->ano);
+        printf("Idade: %d\n", atual->dados->idade);
+        printf("RG: %s\n", atual->dados->RG);
+        atual = atual->proximo;
+    }
+    printf("<- TAIL");
+    
+    printf("\n");
+}
 
 //------------------------------------------------
 
@@ -159,6 +226,30 @@ typedef struct {
   } heap;
 
 //-------------------------------------------------
+
+Elista *procurarPaciente(Lista *l){
+    if(l->inicio == NULL){
+        printf("Sem pacientes.\n");
+        return;
+    }
+    Elista *atual = l->inicio;
+
+    char rg[200];
+    printf("Digite o RG do paciente: ");
+    
+    fgets(rg, 100, stdin);
+    rg[strcspn(rg, "\n")] = '\0';
+
+    while(atual != NULL && strcmp(atual->dados->RG, rg) != 0){
+            atual = atual->proximo;
+    }
+    if(atual == NULL){
+        printf("Paciente nâo encontrado\n");
+        return;
+    }
+
+    return atual;
+}
 
 void cadastrar(Lista *l){
     while(1){
@@ -186,25 +277,7 @@ void cadastrar(Lista *l){
             break;
         }
         case 2:{
-            if(l->inicio == NULL){
-                printf("Lista vazia.\n");
-                break;
-            }
-            Elista *atual = l->inicio;
-
-            char rg[200];
-            printf("Digite o RG do paciente: ");
-            
-            fgets(rg, 100, stdin);
-            rg[strcspn(rg, "\n")] = '\0';
-
-            while(atual != NULL && strcmp(atual->dados->RG, rg) != 0){
-                    atual = atual->proximo;
-            }
-            if(atual == NULL){
-                printf("Paciente nâo encontrado\n");
-                break;
-            }
+            Elista *atual = procurarPaciente(l);
             printf("Nome: %s\n", atual->dados->nome);
             printf("Entrada: %d/", atual->dados->entrada->dia);
             printf("%d/", atual->dados->entrada->mes);
@@ -213,26 +286,47 @@ void cadastrar(Lista *l){
             printf("RG: %s\n", atual->dados->RG);
             break;
         }
-        case 5: {
+        case 3:
             if(l->inicio == NULL){
-                printf("Lista vazia.\n");
+                printf("Sem pacientes.\n");
                 break;
             }
-            Elista *atual = l->inicio;
-
-            char rg[200];
-            printf("Digite o RG do paciente: ");
+            mostrar(l);
+            break;
+        case 4: {
+            Elista *atual = procurarPaciente(l);
+            printf("Nome: %s\n", atual->dados->nome);
+            printf("Entrada: %d/", atual->dados->entrada->dia);
+            printf("%d/", atual->dados->entrada->mes);
+            printf("%d\n", atual->dados->entrada->ano);
+            printf("Idade: %d\n", atual->dados->idade);
+            printf("RG: %s\n", atual->dados->RG);
             
-            fgets(rg, 100, stdin);
-            rg[strcspn(rg, "\n")] = '\0';
+            printf("Alterar\n");
+            printf("1 - Nome   2 - Idade   3 - RG\n");
 
-            while(atual != NULL && strcmp(atual->dados->RG, rg) != 0){
-                    atual = atual->proximo;
+            int opcao2;
+
+            scanf("%d", &opcao2);
+            if(opcao2 == 1){
+                printf("Digite o novo nome do paciente: \n");
+                clearBuffer();
+                fgets(atual->dados->nome, 100, stdin);
+                atual->dados->nome[strcspn(atual->dados->nome, "\n")] = '\0';
+            }else if(opcao2 == 2){
+                printf("Digite a idade: ");
+                scanf("%d", &atual->dados->idade);
+                getchar(); 
+            }else if(opcao2 == 3){
+                printf("Digite o novo RG do paciente: \n");
+                clearBuffer();
+                fgets(atual->dados->RG, 100, stdin);
+                atual->dados->RG[strcspn(atual->dados->RG, "\n")] = '\0';
             }
-            if(atual == NULL){
-                printf("Paciente nâo encontrado\n");
-                break;
-            }
+            break;
+        }
+        case 5: {
+            Elista *atual = procurarPaciente(l);
             if(remover(l, atual) == 0){
                 printf("Removido com suceeso!\n");
             }else{
@@ -240,9 +334,6 @@ void cadastrar(Lista *l){
             }
             break;
         }
-        case 3:
-            mostrar(l);
-            break;
         case 0:
             main();
         }
@@ -250,7 +341,7 @@ void cadastrar(Lista *l){
     
 }
 
-void atendimento(){
+void atendimento(Fila *fila){
     while(1){
         int opcao;
 
@@ -264,6 +355,11 @@ void atendimento(){
 
         switch (opcao)
         {
+        case 1: {
+            printf("Digite o RG do paciente que deseja adicionar na fila: \n");
+
+            //enfileirar(fila);
+        }
         case 0:
             main();
         }
@@ -362,6 +458,7 @@ void clearBuffer(){
 
 int main(){
     Lista *l = criar_lista();
+    Fila *fila = criarFila();
 
     while(1){
         int opcao;
@@ -384,7 +481,7 @@ int main(){
         case 1:
             cadastrar(l);
         case 2:
-            atendimento();
+            atendimento(fila);
         case 3:
             atendimentoP();
         case 4:
