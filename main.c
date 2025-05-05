@@ -75,7 +75,7 @@ Lista *criar_lista(){
 
 void inserir(Lista *lista, Registro *dados){
     Elista *nova = criar_celula(dados);
-    if(lista->qtd == 0){
+    if(lista->inicio == NULL){
         lista->inicio = nova;
         lista->qtd++;
         return;
@@ -92,28 +92,29 @@ void inserir(Lista *lista, Registro *dados){
 
 void mostrar(Lista *lista){
     Elista *atual = lista->inicio;
-    for(int i = 0; atual != NULL; i++){
-        printf("%d/", atual->dados->entrada->dia);
+
+    while(atual != NULL){
+        printf("------------------------------------\n");
+        printf("Nome: %s\n", atual->dados->nome);
+        printf("Entrada: %d/", atual->dados->entrada->dia);
         printf("%d/", atual->dados->entrada->mes);
         printf("%d\n", atual->dados->entrada->ano);
-        printf("%s\n", atual->dados->nome);
-        printf("%d\n", atual->dados->idade);
-        printf("%s\n", atual->dados->RG);
+        printf("Idade: %d\n", atual->dados->idade);
+        printf("RG: %s\n", atual->dados->RG);
         atual = atual->proximo;
     }
     printf("\n");
 }
 
-/*int remover(Lista *lista, int valor){
-    Elista *anterior = NULL;
-    Elista *atual = lista->inicio;
-    while(atual != NULL && atual->valor != valor){
-        anterior = atual;
-        atual = atual->proximo;
-    }
-    //Caso lista vazia
+int remover(Lista *lista, Elista *remover){
     if(lista->inicio==NULL){
         return 1;
+    }
+    Elista *anterior = NULL;
+    Elista *atual = lista->inicio;
+    while(atual != NULL && atual != remover){
+        anterior = atual;
+        atual = atual->proximo;
     }
     //Caso valor nao encontrado na lista
     if(atual ==NULL){
@@ -131,14 +132,9 @@ void mostrar(Lista *lista){
         free(atual);
         return 0;
     }
-    if(lista->qtd == 0){
-        lista->inicio = NULL;
-        lista->qtd--;
-        free(atual);
-    }
     
     return 0;
-}*/
+}
 
 
 //----------------------------------------------
@@ -164,12 +160,12 @@ typedef struct {
 
 //-------------------------------------------------
 
-void cadastrar(){
+void cadastrar(Lista *l){
     while(1){
         int opcao;
 
         printf("1 - Cadastrar novo paciente\n");
-        printf("2 - Consultar novo paciente\n");
+        printf("2 - Consultar paciente\n");
         printf("3 - Mostrar lista completa\n");
         printf("4 - Atualizar dados de paciente\n");
         printf("5 - Remover paciente\n");
@@ -180,6 +176,73 @@ void cadastrar(){
 
         switch (opcao)
         {
+        case 1: {
+            Data dataAtual;
+            pegarDataAtual(&dataAtual);
+    
+            Registro *r = malloc(sizeof(Registro));;
+            addRegistro(r, &dataAtual);
+            inserir(l, r);
+            break;
+        }
+        case 2:{
+            if(l->inicio == NULL){
+                printf("Lista vazia.\n");
+                break;
+            }
+            Elista *atual = l->inicio;
+
+            char rg[200];
+            printf("Digite o RG do paciente: ");
+            
+            fgets(rg, 100, stdin);
+            rg[strcspn(rg, "\n")] = '\0';
+
+            while(atual != NULL && strcmp(atual->dados->RG, rg) != 0){
+                    atual = atual->proximo;
+            }
+            if(atual == NULL){
+                printf("Paciente nâo encontrado\n");
+                break;
+            }
+            printf("Nome: %s\n", atual->dados->nome);
+            printf("Entrada: %d/", atual->dados->entrada->dia);
+            printf("%d/", atual->dados->entrada->mes);
+            printf("%d\n", atual->dados->entrada->ano);
+            printf("Idade: %d\n", atual->dados->idade);
+            printf("RG: %s\n", atual->dados->RG);
+            break;
+        }
+        case 5: {
+            if(l->inicio == NULL){
+                printf("Lista vazia.\n");
+                break;
+            }
+            Elista *atual = l->inicio;
+
+            char rg[200];
+            printf("Digite o RG do paciente: ");
+            
+            fgets(rg, 100, stdin);
+            rg[strcspn(rg, "\n")] = '\0';
+
+            while(atual != NULL && strcmp(atual->dados->RG, rg) != 0){
+                    atual = atual->proximo;
+            }
+            if(atual == NULL){
+                printf("Paciente nâo encontrado\n");
+                break;
+            }
+            if(remover(l, atual) == 0){
+                printf("Removido com suceeso!\n");
+            }else{
+                printf("Erro ao remover\n");
+            }
+            break;
+        }
+        case 3:
+            mostrar(l);
+            break;
         case 0:
             main();
         }
@@ -299,15 +362,6 @@ void clearBuffer(){
 
 int main(){
     Lista *l = criar_lista();
-    Data dataAtual;
-    pegarDataAtual(&dataAtual);
-
-    /*for(int i=0; i<3 ;i++){
-        Registro *r = malloc(sizeof(Registro));;
-        addRegistro(r, &dataAtual);
-        inserir(l, r);
-    }
-    mostrar(l);*/
 
     while(1){
         int opcao;
@@ -328,7 +382,7 @@ int main(){
         switch (opcao)
         {
         case 1:
-            cadastrar();
+            cadastrar(l);
         case 2:
             atendimento();
         case 3:
@@ -343,7 +397,7 @@ int main(){
             sobre();
         case 0:
             printf("Encerrando\n");
-            return;
+            exit(0);
         }
         
     }
