@@ -5,7 +5,7 @@
 
 #define CAP 20
 
-typedef struct Data{
+typedef struct{
     int dia;
     int mes;
     int ano;
@@ -75,14 +75,9 @@ Lista *criar_lista(){
 
 void inserir(Lista *lista, Registro *dados){
     Elista *nova = criar_celula(dados);
-    if(lista->inicio == NULL){
+    if(lista->qtd == 0){
         lista->inicio = nova;
         lista->qtd++;
-        return;
-    }
-
-    if(lista->qtd == 0){
-        nova = lista->inicio;
         return;
     }
 
@@ -91,19 +86,19 @@ void inserir(Lista *lista, Registro *dados){
     nova->proximo = atual;
     lista->inicio = nova;
     lista->qtd++;
-    return;
     
+    return;
 }
 
 void mostrar(Lista *lista){
     Elista *atual = lista->inicio;
     for(int i = 0; atual != NULL; i++){
-        printf("%d/", atual->dados[i].entrada->dia);
-        printf("%d/", atual->dados[i].entrada->mes);
-        printf("%d\n", atual->dados[i].entrada->ano);
-        printf("%s\n", atual->dados[i].nome);
-        printf("%d\n", atual->dados[i].idade);
-        printf("%s\n", atual->dados[i].RG);
+        printf("%d/", atual->dados->entrada->dia);
+        printf("%d/", atual->dados->entrada->mes);
+        printf("%d\n", atual->dados->entrada->ano);
+        printf("%s\n", atual->dados->nome);
+        printf("%d\n", atual->dados->idade);
+        printf("%s\n", atual->dados->RG);
         atual = atual->proximo;
     }
     printf("\n");
@@ -168,15 +163,16 @@ typedef struct {
   } heap;
 
 int main(){
-    Registro *r;
-    Lista *l;
-    Data *dataAtual;
-    pegarDataAtual(dataAtual);
+    Lista *l = criar_lista();
+    Data dataAtual;
+    pegarDataAtual(&dataAtual);
 
-    for(int i=0; i<4;i++){
-        addRegistro(r, dataAtual);
+    for(int i=0; i<3 ;i++){
+        Registro *r = malloc(sizeof(Registro));;
+        addRegistro(r, &dataAtual);
         inserir(l, r);
     }
+    mostrar(l);
 
     return 1;
 }
