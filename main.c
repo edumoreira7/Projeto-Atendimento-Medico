@@ -162,17 +162,191 @@ typedef struct {
     int qtde;
   } heap;
 
+//-------------------------------------------------
+
+void cadastrar(){
+    while(1){
+        int opcao;
+
+        printf("1 - Cadastrar novo paciente\n");
+        printf("2 - Consultar novo paciente\n");
+        printf("3 - Mostrar lista completa\n");
+        printf("4 - Atualizar dados de paciente\n");
+        printf("5 - Remover paciente\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+    
+}
+
+void atendimento(){
+    while(1){
+        int opcao;
+
+        printf("1 - Enfileirar paciente\n");
+        printf("2 - Desenfileirar paciente\n");
+        printf("3 - Mostrar fila\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+}
+
+void atendimentoP(){
+    while(1){
+        int opcao;
+
+        printf("1 - Enfileirar paciente\n");
+        printf("2 - Desenfileirar paciente\n");
+        printf("3 - Mostrar fila\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+}
+void pesquisa(){
+    while(1){
+        int opcao;
+
+        printf("1 - Mostrar por ano\n");
+        printf("2 - Mostrar por mes\n");
+        printf("3 - Mostrar por dia\n");
+        printf("4 - Mostrar por idade\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+}
+void desfazer(){
+    while(1){
+        int opcao;
+
+        printf("1 - Mostrar operacoes fila de atendimento\n");
+        printf("2 - Desfazer ultima operacao\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+}
+void arquivo(){
+    while(1){
+        int opcao;
+
+        printf("1 - Carregar dados\n");
+        printf("2 - Salvar dados\n");
+        printf("0 - Voltar ao menu principal\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            main();
+        }
+    }
+}
+void sobre(){
+    printf("Eduardo Gonçalves Moreira\n");
+    printf("David Gabriel de Souza Batista\n");
+    printf("3° Ciclo\n");
+    printf("Ciencias da Computacao\n");
+    printf("Estrutura de Dados\n");
+    main();
+}
+
+
+void clearBuffer(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
 int main(){
     Lista *l = criar_lista();
     Data dataAtual;
     pegarDataAtual(&dataAtual);
 
-    for(int i=0; i<3 ;i++){
+    /*for(int i=0; i<3 ;i++){
         Registro *r = malloc(sizeof(Registro));;
         addRegistro(r, &dataAtual);
         inserir(l, r);
     }
-    mostrar(l);
+    mostrar(l);*/
+
+    while(1){
+        int opcao;
+
+        printf("Escolha uma opção:\n");
+        printf("1 - Cadastrar\n");
+        printf("2 - Atendimento\n");
+        printf("3 - Atendimento prioritário\n");
+        printf("4 - Pesquisa\n");
+        printf("5 - Desfazer\n");
+        printf("6 - Carregar / Salvar\n");
+        printf("7 - Sobre\n");
+        printf("0 - Sair\n");
+
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 1:
+            cadastrar();
+        case 2:
+            atendimento();
+        case 3:
+            atendimentoP();
+        case 4:
+            pesquisa();
+        case 5:
+            desfazer();
+        case 6:
+            arquivo();
+        case 7:
+            sobre();
+        case 0:
+            printf("Encerrando\n");
+            return;
+        }
+        
+    }
 
     return 1;
 }
