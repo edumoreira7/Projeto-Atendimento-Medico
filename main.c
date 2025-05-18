@@ -10,6 +10,7 @@ void clearBuffer(){
     while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
+
 typedef struct{
     int dia;
     int mes;
@@ -32,10 +33,10 @@ typedef struct Registro{
     char nome[600];
     int idade;
     char RG[500];
-    Data *entrada;
+    Data entrada;
 } Registro;
 
-void addRegistro(Registro *registro, Data *data) { 
+void addRegistro(Registro *registro, Data data) { 
     printf("Digite o RG: ");
     fgets(registro->RG, 100, stdin);
     registro->RG[strcspn(registro->RG, "\n")] = '\0';
@@ -101,9 +102,9 @@ void mostrar(Lista *lista){
     while(atual != NULL){
         printf("------------------------------------\n");
         printf("Nome: %s\n", atual->dados->nome);
-        printf("Entrada: %d/", atual->dados->entrada->dia);
-        printf("%d/", atual->dados->entrada->mes);
-        printf("%d\n", atual->dados->entrada->ano);
+        printf("Entrada: %d/", atual->dados->entrada.dia);
+        printf("%d/", atual->dados->entrada.mes);
+        printf("%d\n", atual->dados->entrada.ano);
         printf("Idade: %d\n", atual->dados->idade);
         printf("RG: %s\n", atual->dados->RG);
         atual = atual->proximo;
@@ -140,6 +141,81 @@ int remover(Lista *lista, Elista *remover){
     
     return 0;
 }
+
+//---------------------------------------------
+int salvarLista(Lista *lista, int pos) {
+    FILE *f = fopen("pacientes.txt", "w");
+    if (f == NULL)
+        return 0;
+
+    Elista *atual = lista->inicio;
+    while (atual != NULL) {
+        Registro *r = atual->dados;
+        fprintf(
+            f,
+            "%s;%d;%s;%02d/%02d/%04d\n",
+            r->nome,
+            r->idade,
+            r->RG,
+            r->entrada.dia,
+            r->entrada.mes,
+            r->entrada.ano
+        );
+        atual = atual->proximo;
+    }
+
+    fprintf(f, "#%d\n", pos);
+
+    fclose(f);
+    return 0;
+}
+
+
+int carregarLista(Lista *lista, int *pos) {
+    FILE *f = fopen("pacientes.txt", "r");
+    if (f == NULL)
+        return 1;
+
+    lista->inicio = NULL;
+    lista->qtd = 0;
+
+    char linha[1200];
+    while (fgets(linha, sizeof(linha), f)) {
+        if (linha[0] == '#') {
+            sscanf(linha + 1, "%d", pos);
+            break;
+        }
+
+        Registro *novo = malloc(sizeof(Registro));
+        if (novo == NULL) {
+            fclose(f);
+            return 1;
+        }
+
+        int lidos = sscanf(
+            linha,
+            "%599[^;];%d;%499[^;];%d/%d/%d",
+            novo->nome,
+            &novo->idade,
+            novo->RG,
+            &novo->entrada.dia,
+            &novo->entrada.mes,
+            &novo->entrada.ano
+        );
+
+        if (lidos != 6) {
+            free(&novo->entrada);
+            free(novo);
+            continue; 
+        }
+
+        inserir(lista, novo);
+    }
+
+    fclose(f);
+    return 0;
+}
+
 
 
 //----------------------------------------------
@@ -211,9 +287,9 @@ void mostrarFila(Fila *fila){
     while(atual != NULL){
         printf("------------------------------------\n");
         printf("Nome: %s\n", atual->dados->nome);
-        printf("Entrada: %d/", atual->dados->entrada->dia);
-        printf("%d/", atual->dados->entrada->mes);
-        printf("%d\n", atual->dados->entrada->ano);
+        printf("Entrada: %d/", atual->dados->entrada.dia);
+        printf("%d/", atual->dados->entrada.mes);
+        printf("%d\n", atual->dados->entrada.ano);
         printf("Idade: %d\n", atual->dados->idade);
         printf("RG: %s\n", atual->dados->RG);
         atual = atual->proximo;
@@ -277,7 +353,7 @@ void cadastrar(Lista *l){
             pegarDataAtual(&dataAtual);
     
             Registro *r = malloc(sizeof(Registro));;
-            addRegistro(r, &dataAtual);
+            addRegistro(r, dataAtual);
             inserir(l, r);
             break;
         }
@@ -287,9 +363,9 @@ void cadastrar(Lista *l){
                 return;
             }
             printf("Nome: %s\n", atual->dados->nome);
-            printf("Entrada: %d/", atual->dados->entrada->dia);
-            printf("%d/", atual->dados->entrada->mes);
-            printf("%d\n", atual->dados->entrada->ano);
+            printf("Entrada: %d/", atual->dados->entrada.dia);
+            printf("%d/", atual->dados->entrada.mes);
+            printf("%d\n", atual->dados->entrada.ano);
             printf("Idade: %d\n", atual->dados->idade);
             printf("RG: %s\n", atual->dados->RG);
             break;
@@ -307,9 +383,9 @@ void cadastrar(Lista *l){
                 return;
             }
             printf("Nome: %s\n", atual->dados->nome);
-            printf("Entrada: %d/", atual->dados->entrada->dia);
-            printf("%d/", atual->dados->entrada->mes);
-            printf("%d\n", atual->dados->entrada->ano);
+            printf("Entrada: %d/", atual->dados->entrada.dia);
+            printf("%d/", atual->dados->entrada.mes);
+            printf("%d\n", atual->dados->entrada.ano);
             printf("Idade: %d\n", atual->dados->idade);
             printf("RG: %s\n", atual->dados->RG);
             
@@ -484,6 +560,10 @@ int main(){
     Lista *l = criar_lista();
     Fila *fila = criarFila();
 
+    
+    int pos;
+    carregarLista(l, &pos);
+
     while(1){
         int opcao;
 
@@ -525,9 +605,9 @@ int main(){
             break;
         case 0:
             printf("Encerrando\n");
-            break;
+            salvarLista(l, l->qtd);
+            exit(0);
         }
-        
     }
 
     return 1;
