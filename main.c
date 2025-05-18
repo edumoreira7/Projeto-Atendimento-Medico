@@ -5,6 +5,11 @@
 
 #define CAP 20
 
+void clearBuffer(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
+
 typedef struct{
     int dia;
     int mes;
@@ -183,7 +188,7 @@ void enfileirar(Fila *fila, Registro *dados){
 
 void desenfileirar(Fila *fila){
     if(fila->qtd == 0){
-        return -1;
+        return;
     }
 
     Efila *liberar = fila->head;
@@ -201,7 +206,7 @@ void desenfileirar(Fila *fila){
 }
 
 void mostrarFila(Fila *fila){
-    printf("HEAD - > ");
+    printf("Primeiro\n");
     Efila *atual = fila->head;
     while(atual != NULL){
         printf("------------------------------------\n");
@@ -213,7 +218,7 @@ void mostrarFila(Fila *fila){
         printf("RG: %s\n", atual->dados->RG);
         atual = atual->proximo;
     }
-    printf("<- TAIL");
+    printf("Ultimo\n");
     
     printf("\n");
 }
@@ -230,7 +235,7 @@ typedef struct {
 Elista *procurarPaciente(Lista *l){
     if(l->inicio == NULL){
         printf("Sem pacientes.\n");
-        return;
+        return NULL;
     }
     Elista *atual = l->inicio;
 
@@ -245,7 +250,7 @@ Elista *procurarPaciente(Lista *l){
     }
     if(atual == NULL){
         printf("Paciente nâo encontrado\n");
-        return;
+        return NULL;
     }
 
     return atual;
@@ -278,6 +283,9 @@ void cadastrar(Lista *l){
         }
         case 2:{
             Elista *atual = procurarPaciente(l);
+            if(atual == NULL){
+                return;
+            }
             printf("Nome: %s\n", atual->dados->nome);
             printf("Entrada: %d/", atual->dados->entrada->dia);
             printf("%d/", atual->dados->entrada->mes);
@@ -295,6 +303,9 @@ void cadastrar(Lista *l){
             break;
         case 4: {
             Elista *atual = procurarPaciente(l);
+            if(atual == NULL){
+                return;
+            }
             printf("Nome: %s\n", atual->dados->nome);
             printf("Entrada: %d/", atual->dados->entrada->dia);
             printf("%d/", atual->dados->entrada->mes);
@@ -327,6 +338,9 @@ void cadastrar(Lista *l){
         }
         case 5: {
             Elista *atual = procurarPaciente(l);
+            if(atual == NULL){
+                return;
+            }
             if(remover(l, atual) == 0){
                 printf("Removido com suceeso!\n");
             }else{
@@ -335,13 +349,13 @@ void cadastrar(Lista *l){
             break;
         }
         case 0:
-            main();
+            return;
         }
     }
     
 }
 
-void atendimento(Fila *fila){
+void atendimento(Fila *fila, Lista *l){
     while(1){
         int opcao;
 
@@ -356,12 +370,27 @@ void atendimento(Fila *fila){
         switch (opcao)
         {
         case 1: {
-            printf("Digite o RG do paciente que deseja adicionar na fila: \n");
-
-            //enfileirar(fila);
+            Elista *atual = procurarPaciente(l);
+            if(atual == NULL){
+                return;
+            }
+            enfileirar(fila, atual->dados);
+            break;
+        }
+        case 2: {
+            if(l->inicio == NULL){
+                printf("Não ha pacientes cadastrados.\n");
+                return;
+            }
+            desenfileirar(fila);
+            break;
+        }
+        case 3: {
+            mostrarFila(fila);
+            break;
         }
         case 0:
-            main();
+            return;
         }
     }
 }
@@ -381,7 +410,7 @@ void atendimentoP(){
         switch (opcao)
         {
         case 0:
-            main();
+            return;
         }
     }
 }
@@ -401,7 +430,7 @@ void pesquisa(){
         switch (opcao)
         {
         case 0:
-            main();
+            return;
         }
     }
 }
@@ -419,7 +448,7 @@ void desfazer(){
         switch (opcao)
         {
         case 0:
-            main();
+            return;
         }
     }
 }
@@ -437,7 +466,7 @@ void arquivo(){
         switch (opcao)
         {
         case 0:
-            main();
+            return;
         }
     }
 }
@@ -447,14 +476,9 @@ void sobre(){
     printf("3° Ciclo\n");
     printf("Ciencias da Computacao\n");
     printf("Estrutura de Dados\n");
-    main();
+    return;
 }
 
-
-void clearBuffer(){
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
-}
 
 int main(){
     Lista *l = criar_lista();
@@ -480,21 +504,28 @@ int main(){
         {
         case 1:
             cadastrar(l);
+            break;
         case 2:
-            atendimento(fila);
+            atendimento(fila, l);
+            break;
         case 3:
             atendimentoP();
+            break;
         case 4:
             pesquisa();
+            break;
         case 5:
             desfazer();
+            break;
         case 6:
             arquivo();
+            break;
         case 7:
             sobre();
+            break;
         case 0:
             printf("Encerrando\n");
-            exit(0);
+            break;
         }
         
     }
