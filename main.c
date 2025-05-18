@@ -217,7 +217,95 @@ int carregarLista(Lista *lista, int *pos) {
 }
 
 
+//---------------------------------------------
+//Pilha
+typedef struct Operacao {
+  struct Operacao *anterior;
+  struct Operacao *proximo;
+  //1 enfileirou 2 desenfileirou
+  int operacao;
+  //dados do paciente
+  Registro *dados;
+} Operacao;
 
+typedef struct {
+  Operacao *top;
+  int qtde;
+} Pilha;
+
+Operacao *start_cell(Registro *dados, int operacao) {
+  Operacao *nova = malloc(sizeof(Operacao));
+  nova->anterior = NULL;
+  nova->proximo = NULL;
+  nova->dados = dados;
+  nova->operacao = operacao;
+  return nova;
+}
+
+Pilha *start_stack() {
+  Pilha *stack = malloc(sizeof(Pilha));
+  stack->qtde = 0;
+  stack->top = NULL;
+  return stack;
+}
+
+void push(Pilha *stack, Registro *dados, int operacao) {
+  Operacao *nova = start_cell(dados, operacao);
+  if (stack->qtde != 0) {
+        stack->top->proximo = nova;
+        nova->anterior = stack->top;
+  }
+  stack->top = nova;
+  stack->qtde++;
+}
+
+void pop(Pilha *stack, struct Fila *fila) {
+    if(stack->top == NULL){
+        printf("Sem operações\n");
+        return;
+    }
+    Operacao *top = stack->top;
+
+    Registro *dados = top->dados;
+    int operacao = top->operacao;
+
+    if(operacao == 1){
+        desenfileirar(fila, stack);
+        stack->top = stack->top->anterior;
+        if (stack->top != NULL)
+            stack->top->proximo = NULL;
+        stack->qtde--;
+    }else if(operacao == 2){
+        enfileirar(fila, dados, stack);
+        stack->top = stack->top->anterior;
+        if (stack->top != NULL)
+            stack->top->proximo = NULL;
+        stack->qtde--;
+    }
+
+    stack->top = stack->top->anterior;
+    if (stack->top != NULL)
+        stack->top->proximo = NULL;
+    stack->qtde--;
+    free(top);
+}
+
+void mostrarPilha(Pilha *stack){
+    if(stack->top == NULL){
+        printf("Sem operações\n");
+        return;
+    }
+    Operacao *atual = stack->top;
+    while(atual != NULL){
+        if(atual->operacao == 1){
+            printf("Operação: Enfileirar\n");
+        }else if(atual->operacao == 2){
+            printf("Operação: Desenfileirar\n");
+        }
+        printf("Paciente: %s\n\n", atual->dados->nome);
+        atual = atual->anterior;
+    }
+}
 //----------------------------------------------
 //FILA | QUEUE
 
@@ -248,7 +336,7 @@ Fila *criarFila(){
     return fila;
 }
 
-void enfileirar(Fila *fila, Registro *dados){
+void enfileirar(Fila *fila, Registro *dados, Pilha *stack){
     Efila *nova = criarCelula(dados);
     
     if(fila->qtd == 0){
@@ -258,15 +346,17 @@ void enfileirar(Fila *fila, Registro *dados){
     }
     fila->tail = nova;
     fila->qtd++;
+
+    push(stack, nova->dados, 1);
 } 
 
-void desenfileirar(Fila *fila){
+void desenfileirar(Fila *fila, Pilha *stack){
     if(fila->qtd == 0){
         return;
     }
 
     Efila *liberar = fila->head;
-    //Registro *dados = fila->head->dados;
+    Registro *dados = fila->head->dados;
 
     if(fila->qtd == 1){
         fila->head = NULL;
@@ -276,7 +366,9 @@ void desenfileirar(Fila *fila){
     }
     fila->qtd--;
     free(liberar);
-    //return valor;
+
+    
+    push(stack, dados, 2);
 }
 
 void mostrarFila(Fila *fila){
@@ -633,7 +725,7 @@ void cadastrar(Lista *l){
     
 }
 
-void atendimento(Fila *fila, Lista *l){
+void atendimento(Fila *fila, Lista *l, Pilha *stack){
     while(1){
         int opcao;
 
@@ -652,7 +744,7 @@ void atendimento(Fila *fila, Lista *l){
             if(atual == NULL){
                 return;
             }
-            enfileirar(fila, atual->dados);
+            enfileirar(fila, atual->dados, stack);
             break;
         }
         case 2: {
@@ -660,7 +752,7 @@ void atendimento(Fila *fila, Lista *l){
                 printf("Não ha pacientes cadastrados.\n");
                 return;
             }
-            desenfileirar(fila);
+            desenfileirar(fila, stack);
             break;
         }
         case 3: {
@@ -761,7 +853,7 @@ void pesquisa(Lista *l){
     }
 }
 
-void desfazer(){
+void desfazer(Pilha *stack, Fila *fila){
     while(1){
         int opcao;
 
@@ -776,11 +868,19 @@ void desfazer(){
         {
         case 0:
             return;
+        case 1: {
+            mostrarPilha(stack);
+            break;
+        }
+        case 2: {
+            pop(stack, fila);
+            break;
+        }
         }
     }
 }
 
-void arquivo(){
+void arquivo(Lista *l){
     while(1){
         int opcao;
 
@@ -795,6 +895,13 @@ void arquivo(){
         {
         case 0:
             return;
+        case 1: {
+            int pos;
+            carregarLista(l, &pos);
+        }
+        case 2: {
+            salvarLista(l, l->qtd);
+        }
         }
     }
 }
@@ -814,6 +921,7 @@ int main(){
     Fila *fila = criarFila();
     heap *h = malloc(sizeof(heap));
     h->qtde = 0;
+    Pilha *stack = start_stack();
 
     
     int pos;
@@ -841,7 +949,7 @@ int main(){
             cadastrar(l);
             break;
         case 2:
-            atendimento(fila, l);
+            atendimento(fila, l, stack);
             break;
         case 3:
             atendimentoP(h, l);
@@ -850,10 +958,10 @@ int main(){
             pesquisa(l);
             break;
         case 5:
-            desfazer();
+            desfazer(stack, fila);
             break;
         case 6:
-            arquivo();
+            arquivo(l);
             break;
         case 7:
             sobre();
