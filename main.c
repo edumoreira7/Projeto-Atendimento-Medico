@@ -219,8 +219,6 @@ int carregarLista(Lista *lista, int *pos) {
 
 
 //----------------------------------------------
-
-
 //FILA | QUEUE
 
 typedef struct Efila{
@@ -300,13 +298,86 @@ void mostrarFila(Fila *fila){
 }
 
 //------------------------------------------------
+//HEAP
 
 typedef struct {
-    Registro dados[CAP];
+    Registro *dados[20];
     int qtde;
-  } heap;
+} heap;
 
-//-------------------------------------------------
+int fe(int pai) {
+    return (2 * pai) + 1;
+}
+
+int fd(int pai) {
+    return (2 * pai) + 2;
+}
+
+int pai(int filho) {
+    return (filho - 1) / 2;
+}
+
+int up(heap *h) {
+    return (h->qtde / 2) - 1;
+}
+
+void peneirar(int pai, heap *h) {
+    int maior = pai;
+    int filhoE = fe(pai);
+    int filhoD = fd(pai);
+
+    if (filhoE < h->qtde && h->dados[filhoE]->idade > h->dados[maior]->idade) {
+        maior = filhoE;
+    }
+    if (filhoD < h->qtde && h->dados[filhoD]->idade > h->dados[maior]->idade) {
+        maior = filhoD;
+    }
+
+    if (pai != maior) {
+        Registro *aux = h->dados[maior];
+        h->dados[maior] = h->dados[pai];
+        h->dados[pai] = aux;
+
+        peneirar(maior, h);
+    }
+}
+
+void mostrarH(heap *h) {
+    for (int i = 0; i < h->qtde; i++) {
+        printf("Nome: %s, Idade: %d, RG: %s\n", h->dados[i]->nome, h->dados[i]->idade, h->dados[i]->RG);
+    }
+    printf("\n");
+}
+
+void construir(heap *h) {
+    int ultimoP = up(h);
+
+    for (int i = ultimoP; i >= 0; i--) {
+        peneirar(i, h);
+    }
+}
+
+void inserirH(heap *h, Registro *r) {
+    if (h->qtde == 20) {
+        return;
+    }
+
+    h->dados[h->qtde] = r;
+    h->qtde++;
+
+    construir(h);
+}
+
+void removerH(heap *h) {
+    if (h->qtde == 0) {
+        return;
+    }
+
+    h->dados[0] = h->dados[h->qtde - 1];
+    h->qtde--;
+
+    construir(h);
+}//-------------------------------------------------
 
 Elista *procurarPaciente(Lista *l){
     if(l->inicio == NULL){
@@ -471,7 +542,7 @@ void atendimento(Fila *fila, Lista *l){
     }
 }
 
-void atendimentoP(){
+void atendimentoP(heap *h, Lista *l){
     while(1){
         int opcao;
 
@@ -487,6 +558,26 @@ void atendimentoP(){
         {
         case 0:
             return;
+        case 1:{
+            Elista *atual = procurarPaciente(l);
+            if(atual == NULL){
+                return;
+            }
+            inserirH(h, atual->dados);
+            break;
+        }
+        case 2: {
+            if(h->dados == NULL){
+                printf("Não há pacientes na fila de atendimento prioritario");
+                return;
+            }
+            removerH(h);
+            break;
+        }
+        case 3: {
+            mostrarH(h);
+        }
+            
         }
     }
 }
@@ -559,6 +650,8 @@ void sobre(){
 int main(){
     Lista *l = criar_lista();
     Fila *fila = criarFila();
+    heap *h = malloc(sizeof(heap));
+    h->qtde = 0;
 
     
     int pos;
@@ -589,7 +682,7 @@ int main(){
             atendimento(fila, l);
             break;
         case 3:
-            atendimentoP();
+            atendimentoP(h, l);
             break;
         case 4:
             pesquisa();
