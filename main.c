@@ -403,6 +403,137 @@ Elista *procurarPaciente(Lista *l){
     return atual;
 }
 
+
+//--------------------------------
+//Arvore Binaria
+
+typedef struct EABB{
+	Registro *dados;
+	struct EABB* esq;
+	struct EABB* dir;
+	struct EABB* pai;
+} EABB;
+
+typedef struct ABB{
+	EABB* raiz;
+	int qtde;
+} ABB;
+
+EABB *cria_vertice(Registro *dados){
+	EABB* novo = malloc(sizeof(EABB));
+	novo->dir = NULL;
+	novo->esq = NULL;
+	novo->pai = NULL;    
+    novo->dados = dados;
+	
+	return novo;
+}
+
+ABB *cria_arvore(){
+	ABB* arvore = malloc(sizeof(ABB));
+	arvore->raiz = NULL;
+	arvore->qtde = 0;
+
+	return arvore;
+}
+
+void in_ordem(EABB *raiz) {
+    if (raiz != NULL) {
+        in_ordem(raiz->esq);
+        printf("Nome: %s, Idade: %d, RG: %s\n", raiz->dados->nome, raiz->dados->idade, raiz->dados->RG);
+        printf("Entrada: %d/", raiz->dados->entrada.dia);
+        printf("%d/", raiz->dados->entrada.mes);
+        printf("%d\n\n", raiz->dados->entrada.ano);
+        in_ordem(raiz->dir);
+    }
+}
+
+void inserirAno(ABB* arvore, Registro *dados){
+	EABB* novo = cria_vertice(dados);
+
+	EABB* anterior = NULL;
+	EABB* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(dados->entrada.ano <= anterior->dados->entrada.ano){
+			atual = atual->esq;
+		}else{
+			atual = atual->dir;
+		}
+	}
+
+	novo->pai = anterior;
+	if(anterior != NULL){
+		if(dados->entrada.ano <= anterior->dados->entrada.ano){
+			anterior->esq = novo;
+		}else{
+			anterior->dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+
+}
+
+void inserirMes(ABB* arvore, Registro *dados){
+	EABB* novo = cria_vertice(dados);
+
+	EABB* anterior = NULL;
+	EABB* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(dados->entrada.mes <= anterior->dados->entrada.mes){
+			atual = atual->esq;
+		}else{
+			atual = atual->dir;
+		}
+	}
+
+	novo->pai = anterior;
+	if(anterior != NULL){
+		if(dados->entrada.mes <= anterior->dados->entrada.mes){
+			anterior->esq = novo;
+		}else{
+			anterior->dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
+
+void inserirDia(ABB* arvore, Registro *dados){
+	EABB* novo = cria_vertice(dados);
+
+	EABB* anterior = NULL;
+	EABB* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(dados->entrada.dia <= anterior->dados->entrada.dia){
+			atual = atual->esq;
+		}else{
+			atual = atual->dir;
+		}
+	}
+
+	novo->pai = anterior;
+	if(anterior != NULL){
+		if(dados->entrada.dia <= anterior->dados->entrada.dia){
+			anterior->esq = novo;
+		}else{
+			anterior->dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
+
+//------------------------------
 void cadastrar(Lista *l){
     while(1){
         int opcao;
@@ -581,9 +712,13 @@ void atendimentoP(heap *h, Lista *l){
         }
     }
 }
-void pesquisa(){
+
+void pesquisa(Lista *l){
     while(1){
         int opcao;
+
+        ABB *arvore = cria_arvore();
+        Elista *atual = l->inicio;
 
         printf("1 - Mostrar por ano\n");
         printf("2 - Mostrar por mes\n");
@@ -598,9 +733,34 @@ void pesquisa(){
         {
         case 0:
             return;
+        case 1: {
+            while(atual != NULL){
+                inserirAno(arvore, atual->dados);
+                atual = atual->proximo;
+            }
+            in_ordem(arvore->raiz);
+            break;
+        }
+        case 2: {
+            while(atual != NULL){
+                inserirMes(arvore, atual->dados);
+                atual = atual->proximo;
+            }
+            in_ordem(arvore->raiz);
+            break;
+        }
+        case 3:{
+            while(atual != NULL){
+                inserirDia(arvore, atual->dados);
+                atual = atual->proximo;
+            }
+            in_ordem(arvore->raiz);
+            break;
+        }
         }
     }
 }
+
 void desfazer(){
     while(1){
         int opcao;
@@ -619,6 +779,7 @@ void desfazer(){
         }
     }
 }
+
 void arquivo(){
     while(1){
         int opcao;
@@ -637,6 +798,7 @@ void arquivo(){
         }
     }
 }
+
 void sobre(){
     printf("Eduardo Gonçalves Moreira\n");
     printf("David Gabriel de Souza Batista\n");
@@ -685,7 +847,7 @@ int main(){
             atendimentoP(h, l);
             break;
         case 4:
-            pesquisa();
+            pesquisa(l);
             break;
         case 5:
             desfazer();
