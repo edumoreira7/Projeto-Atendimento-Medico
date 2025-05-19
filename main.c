@@ -144,11 +144,20 @@ int remover(Lista *lista, Elista *remover){
 
 //---------------------------------------------
 int salvarLista(Lista *lista, int pos) {
+    Lista *inversa = criar_lista();
+    Elista *celInversa = lista->inicio;
+    while(celInversa != NULL){
+        inserir(inversa, celInversa->dados);
+        celInversa = celInversa->proximo;
+    }
+
+
+
     FILE *f = fopen("pacientes.txt", "w");
     if (f == NULL)
         return 0;
 
-    Elista *atual = lista->inicio;
+    Elista *atual = inversa->inicio;
     while (atual != NULL) {
         Registro *r = atual->dados;
         fprintf(
@@ -167,6 +176,7 @@ int salvarLista(Lista *lista, int pos) {
     fprintf(f, "#%d\n", pos);
 
     fclose(f);
+    free(inversa);
     return 0;
 }
 
@@ -270,13 +280,31 @@ void pop(Pilha *stack, struct Fila *fila) {
     int operacao = top->operacao;
 
     if(operacao == 1){
+        printf("Operação: Enfileirar\n");
+    }else if(operacao == 2){
+        printf("Operação: Desenfileirar\n");
+    }
+    printf("Paciente: %s\n", dados->nome);
+    printf("RG: %s\n", dados->RG);
+
+    int opcao;
+    printf("Deseja desfazer essa operação?\n");
+    printf("1 - Sim   2 - Não\n");
+    scanf("%d", &opcao);
+
+    if(opcao == 2){
+        printf("Operação não realizada\n");
+        return;
+    }
+
+    if(operacao == 1){
         desenfileirar(fila, stack);
         stack->top = stack->top->anterior;
         if (stack->top != NULL)
             stack->top->proximo = NULL;
         stack->qtde--;
     }else if(operacao == 2){
-        enfileirar(fila, dados, stack);
+        furarFila(fila, dados, stack);
         stack->top = stack->top->anterior;
         if (stack->top != NULL)
             stack->top->proximo = NULL;
@@ -350,6 +378,23 @@ void enfileirar(Fila *fila, Registro *dados, Pilha *stack){
     push(stack, nova->dados, 1);
 } 
 
+void furarFila(Fila *fila, Registro *dados, Pilha *stack){
+    Efila *nova = criarCelula(dados);
+    Efila *primeiro = NULL;
+    
+    if(fila->qtd == 0){
+        fila->head = nova;
+    }else{
+        primeiro = fila->head;
+        fila->head = nova;
+        fila->head->proximo = primeiro;
+    }
+    fila->qtd++;
+
+    push(stack, nova->dados, 1);
+} 
+
+
 void desenfileirar(Fila *fila, Pilha *stack){
     if(fila->qtd == 0){
         return;
@@ -372,8 +417,13 @@ void desenfileirar(Fila *fila, Pilha *stack){
 }
 
 void mostrarFila(Fila *fila){
-    printf("Primeiro\n");
     Efila *atual = fila->head;
+    if(atual == NULL){
+        printf("Não há pacientes na fila de atendimento\n");
+        return;
+    }
+
+    printf("Primeiro\n");
     while(atual != NULL){
         printf("------------------------------------\n");
         printf("Nome: %s\n", atual->dados->nome);
@@ -435,6 +485,10 @@ void peneirar(int pai, heap *h) {
 }
 
 void mostrarH(heap *h) {
+    if(h->dados[0] == NULL){
+        printf("Não há pacientes na fila de atendimento prioritário\n");
+        return;
+    }
     for (int i = 0; i < h->qtde; i++) {
         printf("Nome: %s, Idade: %d, RG: %s\n", h->dados[i]->nome, h->dados[i]->idade, h->dados[i]->RG);
     }
@@ -462,6 +516,7 @@ void inserirH(heap *h, Registro *r) {
 
 void removerH(heap *h) {
     if (h->qtde == 0) {
+        printf("Não há pacientes na fila de atendimento prioritário\n");
         return;
     }
 
@@ -806,6 +861,10 @@ void atendimentoP(heap *h, Lista *l){
 }
 
 void pesquisa(Lista *l){
+    if(l->inicio == NULL){
+        printf("Não há pacientes\n");
+        return;
+    }
     while(1){
         int opcao;
 
@@ -854,6 +913,11 @@ void pesquisa(Lista *l){
 }
 
 void desfazer(Pilha *stack, Fila *fila){
+    if(stack->qtde == 0){
+        printf("Não há operações na fila de atendimento\n");
+        return;
+    }
+
     while(1){
         int opcao;
 
