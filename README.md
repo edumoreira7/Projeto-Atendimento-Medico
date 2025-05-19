@@ -1,66 +1,70 @@
-#  Gerenciador de Atendimento Médico
+# 🏥 Gerenciador de Atendimento Médico
 
- **Estrutura de Dados** 
-**Prof. Luciano Rossi**
+**Disciplina:** Estrutura de Dados  
+**Professor:** Luciano Rossi  
 
 ---
 
 ##  Objetivo
 
-O sistema tem como objetivo gerenciar atendimentos em um ambiente médico, utilizando diferentes estruturas de dados para organizar e controlar os pacientes, filas de atendimento, filas prioritárias, histórico de operações e
-armanezar os dados, de forma que os mesmos não se percam.
+Este sistema tem como objetivo gerenciar atendimentos em um ambiente médico, utilizando diferentes **estruturas de dados** para organizar e controlar os pacientes, filas de atendimento, filas prioritárias, histórico de operações e armazenamento de dados, garantindo que as informações não se percam mesmo após o encerramento da aplicação.
 
 ---
 
 ##  Funcionalidades Implementadas
 
 ### 1. Cadastro de Pacientes
-- Registro com nome, idade, RG e data de entrada
-- Lista encadeada dinâmica
-- Operações:
+- Utiliza uma **Lista Encadeada**
+- Campos registrados: Nome, Idade, RG e Data de Entrada
+- Funcionalidades:
   - Inserir novo paciente
-  - Consultar paciente
-  - Atualizar dados
+  - Consultar paciente pelo RG
+  - Atualizar dados do paciente
   - Remover paciente
-  - Listar todos os pacientes
+  - Listar todos os pacientes cadastrados
 
 ### 2. Atendimento Convencional
-- Implementado com Fila (Queue)
-- Operações:
+- Implementado com uma **Fila (Queue)**
+- Funcionalidades:
   - Enfileirar paciente
   - Desenfileirar paciente
-  - Visualizar fila
+  - Visualizar fila de atendimento
 
-### 3. Atendimento Prioritário 
-- Implementado com Heap Máxima por idade
-- Capacidade máxima de 20 pacientes
-- Operações:
+### 3. Atendimento Prioritário
+- Implementado com uma **Heap Máxima** (baseada na idade do paciente)
+- Capacidade máxima: 20 pacientes
+- Funcionalidades:
   - Enfileirar paciente prioritário
-  - Desenfileirar
-  - Mostrar heap
+  - Desenfileirar paciente mais idoso
+  - Mostrar fila de prioridade
 
-### 4. Pesquisa 
-- Previsto uso de Árvore Binária de Busca (ABB)
-- Ordenações por:
-  - Ano, mês ou dia da entrada
-  - Idade do paciente
+### 4. Pesquisa
+- Utiliza uma **Árvore Binária de Busca (ABB)**
+- Permite ordenação e visualização dos pacientes por:
+  - Ano de entrada
+  - Mês de entrada
+  - Dia de entrada
 
-### 5. Desfazer Operações 
-- Pilha de operações
-- Desfaz a última ação realizada sobre a fila comum
+### 5. Desfazer Operações
+- Implementado com uma **Pilha de operações**
+- Registra ações de enfileirar e desenfileirar da fila comum
+- Permite desfazer a última operação realizada
 
 ### 6. Arquivo
-- XXXXX
+- Salva e carrega automaticamente os dados dos pacientes
+- Utiliza arquivos `.txt` para persistência
+- Funcionalidades:
+  - Carregar dados salvos em execuções anteriores
+  - Salvar dados ao encerrar ou manualmente
 
 ### 7. Sobre
-- Mostra dados dos desenvolvedores e informações do curso
+- Mostra os nomes dos desenvolvedores e dados do curso
 
 ---
 
-##  Integrantes do Grupo
+## Integrantes do Grupo
 
-- **Eduardo Gonçalves Moreira** 
-- RA:22.124.087-2 
-- **David Gabriel de Souza Batista** 
-- RA:22.123.056-8
-
+- **Eduardo Gonçalves Moreira**  
+  RA: 22.124.087-2  
+- **David Gabriel de Souza Batista**  
+  RA: 22.123.056-8
